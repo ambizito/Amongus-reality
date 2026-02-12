@@ -15,6 +15,12 @@ MVP técnico para jogo presencial estilo Among Us com foco em funcionamento em r
 - **Módulo de dashboard (simulado)** com comandos do host.
 - **Testes automatizados** cobrindo idempotência, outbox e regras centrais.
 
+## Visao geral do projeto
+
+Documento completo com objetivos, arquitetura, fluxos, requisitos e tasks:
+
+- `docs/VISAO_GERAL.md`
+
 ## Como executar
 
 ```bash
