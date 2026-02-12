@@ -1,0 +1,11 @@
+{
+  "name": "amongus-reality-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server/httpServer.js",
+    "test": "node --test",
+    "quickstart": "./scripts/quickstart.sh"
+  }
+}
