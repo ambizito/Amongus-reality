@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Armas</title>
+    <link rel="stylesheet" href="/tasks/shared.css" />
+    <style>
+      .hud {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        margin-top: 12px;
+      }
+      .status {
+        color: var(--muted);
+      }
+      .status.success {
+        color: #22c55e;
+        font-weight: 700;
+      }
+      .field {
+        margin-top: 12px;
+        height: 220px;
+        width: 100%;
+        border-radius: 16px;
+        border: 1px solid #334155;
+        background: radial-gradient(circle at 20% 20%, #1f2937, #0f172a 70%);
+        position: relative;
+        overflow: hidden;
+      }
+      .asteroid {
+        position: absolute;
+        border-radius: 50%;
+        border: 2px solid rgba(15, 23, 42, 0.8);
+        background: radial-gradient(circle at 30% 30%, #fbbf24, #92400e 60%);
+        cursor: pointer;
+        transition: transform 0.1s ease;
+      }
+      .asteroid:active {
+        transform: scale(0.9);
+      }
+      .task-button {
+        margin-top: 14px;
+        width: 100%;
+        padding: 10px 16px;
+        border-radius: 12px;
+        border: 0;
+        background: #1f2937;
+        color: #e2e8f0;
+        font-weight: 700;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="task">
+      <div class="task-title">Armas</div>
+      <div class="task-sub">Shoot 20 asteroids.</div>
+      <div class="hud">
+        <div>Hits: <span id="hits">0</span>/20</div>
+        <div id="status" class="status">Tap the asteroids</div>
+      </div>
+      <div id="field" class="field" aria-label="Asteroid field"></div>
+      <button id="restart" class="task-button" type="button">Restart</button>
+    </div>
+
+    <script>
+      const field = document.getElementById('field');
+      const hitsEl = document.getElementById('hits');
+      const statusEl = document.getElementById('status');
+      const restartBtn = document.getElementById('restart');
+
+      const targetHits = 20;
+      let hits = 0;
+      let active = true;
+      let spawnTimer = null;
+
+      function notifyComplete() {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'TASK_COMPLETE', taskId: 'ARMAS' }, window.location.origin);
+        }
+      }
+
+      function updateScore() {
+        hitsEl.textContent = String(hits);
+      }
+
+      function clearField() {
+        while (field.firstChild) {
+          field.removeChild(field.firstChild);
+        }
+      }
+
+      function finish() {
+        active = false;
+        if (spawnTimer) clearInterval(spawnTimer);
+        statusEl.textContent = 'Task complete!';
+        statusEl.classList.add('success');
+        notifyComplete();
+      }
+
+      function spawnAsteroid() {
+        if (!active) return;
+        if (field.childElementCount > 6) return;
+
+        const size = 24 + Math.random() * 26;
+        const maxX = field.clientWidth - size;
+        const maxY = field.clientHeight - size;
+        const x = Math.random() * Math.max(1, maxX);
+        const y = Math.random() * Math.max(1, maxY);
+
+        const asteroid = document.createElement('button');
+        asteroid.type = 'button';
+        asteroid.className = 'asteroid';
+        asteroid.style.width = `${size}px`;
+        asteroid.style.height = `${size}px`;
+        asteroid.style.left = `${x}px`;
+        asteroid.style.top = `${y}px`;
+
+        const ttl = 1000 + Math.random() * 700;
+        const timeout = setTimeout(() => {
+          if (asteroid.parentNode) asteroid.remove();
+        }, ttl);
+
+        asteroid.addEventListener('click', () => {
+          clearTimeout(timeout);
+          if (!active) return;
+          hits += 1;
+          updateScore();
+          asteroid.remove();
+          if (hits >= targetHits) {
+            finish();
+          }
+        });
+
+        field.appendChild(asteroid);
+      }
+
+      function start() {
+        hits = 0;
+        active = true;
+        statusEl.textContent = 'Tap the asteroids';
+        statusEl.classList.remove('success');
+        updateScore();
+        clearField();
+        if (spawnTimer) clearInterval(spawnTimer);
+        spawnTimer = setInterval(spawnAsteroid, 550);
+      }
+
+      restartBtn.addEventListener('click', start);
+      start();
+    </script>
+  </body>
+</html>

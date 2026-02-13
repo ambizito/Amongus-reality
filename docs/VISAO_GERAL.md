@@ -8,6 +8,7 @@ App mobile para Android/iPhone e um dashboard web para um jogo presencial estilo
 - Tasks sao abertas via QR Code no local fisico e executadas localmente.
 - Impostor pode acionar sabotagens.
 - Host (PC) monitora a partida e dispara Emergencia.
+  - O acesso do jogador e via QR da sala ou codigo de 4 digitos.
 
 ## Premissas
 
@@ -44,10 +45,11 @@ App mobile para Android/iPhone e um dashboard web para um jogo presencial estilo
 
 - Partida
   - `idPartida`, `estado` (LOBBY, EM_JOGO, EMERGENCIA, FINALIZADA)
+  - `entryCode`, `impostorCount`, `tasksPerPlayer`
   - `inicioEm`, `fimEm`, `regraVitoria`
 - Jogador
-  - `idJogador`, `apelido`, `papel`, `status`
-  - `tasksConcluidas` (lista ou contador)
+  - `idJogador`, `apelido`, `papel`, `status`, `color`
+  - `tasksConcluidas`, `assignedTasks`
 - Task
   - `idTask`, `tipo`, `qrLocationId`
   - `concluidaPorJogador` (mapa jogador -> bool)
@@ -82,17 +84,20 @@ timestampLocal
 ## Fluxos principais
 
 - Entrar na partida: host cria e gera QR; jogador escaneia e entra.
+- Alternativa: jogador digita codigo numerico de 4 digitos.
 - Iniciar jogo: host inicia; servidor atribui papeis e apps sincronizam.
 - Fazer tasks: escaneia QR, executa minigame local, envia TASK_COMPLETED.
-- Morte: vitima reporta no app; servidor marca como MORTO.
+- Morte: vitima reporta no app; servidor marca como MORTO e abre emergencia.
 - Sabotagem: impostor aciona; servidor notifica; jogador resolve via QR.
 - Emergencia: host aciona e encerra; apps exibem estado atual ao reconectar.
-- Fim de jogo: servidor encerra ao atingir regra de vitoria.
+- Fim de jogo: servidor encerra ao atingir regra de vitoria e retorna ao lobby.
 
 ## Requisitos funcionais (RF)
 
 - Partida/Lobby: criar partida, entrar via QR, listar jogadores, iniciar jogo.
+- Partida/Lobby: host define numero de impostores e tasks por player.
 - Mapa/QR: exibir mapa, ler QR, abrir task correta, registrar conclusao.
+- Lobby: mostrar jogadores e cor de cada um.
 - Offline-first: outbox persistente, sincronizacao, status online/offline.
 - Progresso: servidor calcula progresso e encerra automaticamente.
 - Morte: jogador reporta morte; servidor bloqueia pontuacao de morto.
@@ -121,6 +126,13 @@ timestampLocal
 - Fios: conectar cores iguais.
 - Eletrica com ritmo: acertar N vezes.
 
+### Pasta de tasks
+
+- Definicoes de tasks ficam em `src/tasks`.
+- Cada minigame tem um arquivo proprio.
+- QRs sao fixos e nao mudam.
+- UI dos minigames vive em `public/tasks`.
+
 ## Dashboard (Host PC)
 
 - Criar partida e gerar QR/codigo.
@@ -137,3 +149,4 @@ timestampLocal
 - Servidor valida status (morto nao pontua task).
 - App puxa estado atual ao reconectar.
 - Sabotagem/emergencia so aparecem ao reconectar se offline.
+- Ao recarregar a pagina, o app valida se a partida terminou e volta ao login se preciso.

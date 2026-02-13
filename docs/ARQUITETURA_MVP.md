@@ -46,3 +46,14 @@ Formato comum:
 - Adicionar WebSocket para alertas <2s.
 - Implementar app mobile visual (scanner QR + minigames).
 - Dashboard React com tabela/linha do tempo em tempo real.
+
+## Atualizacoes recentes
+
+- Entrada por codigo numerico de 4 digitos ou QR.
+- Host configura quantidade de impostores e tasks por player.
+- Reporte de corpo dispara emergencia para todos.
+- Mapa do mobile usa imagem com icones.
+- Partida finalizada retorna ao lobby.
+- Tasks ficam em `src/tasks` (um arquivo por minigame, QR fixo).
+- UI dos minigames em `public/tasks` com um arquivo por task.
+- Mobile valida sessao salva no reload e volta ao login se a partida terminou.

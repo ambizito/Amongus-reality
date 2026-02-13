@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { createMatch } = require('../core/gameEngine');
+const tasks = require('../tasks');
 
 const STORE_PATH = path.resolve(process.cwd(), 'data', 'state.json');
 
@@ -40,14 +41,12 @@ function saveState(state) {
   fs.writeFileSync(STORE_PATH, JSON.stringify(serializable, null, 2));
 }
 
-function createDefaultMatch() {
+function createDefaultMatch({ impostorCount, tasksPerPlayer } = {}) {
   return createMatch({
-    taskCatalog: [
-      { taskId: 'LIXO', qrLocationId: 'QR_LIXO' },
-      { taskId: 'O2', qrLocationId: 'QR_O2' },
-      { taskId: 'FIOS', qrLocationId: 'QR_FIOS' },
-    ],
+    taskCatalog: tasks.map((task) => ({ ...task })),
     sabotageCatalog: [{ sabotageId: 'SAB_O2', type: 'O2', qrFixLocationId: 'QR_FIX_O2' }],
+    impostorCount,
+    tasksPerPlayer,
   });
 }
 

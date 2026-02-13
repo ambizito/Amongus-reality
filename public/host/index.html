@@ -1,0 +1,159 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Amongus Reality - Host Dashboard</title>
+    <link rel="stylesheet" href="/host/styles.css" />
+    <script defer src="/host/app.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <section id="screen-create" class="screen active">
+        <header class="hero">
+          <div class="title-block">
+            <span class="pill">Host Console</span>
+            <h1>Create Match</h1>
+            <p>Generate the 4-digit entry code and QR for players.</p>
+          </div>
+        </header>
+
+        <section class="panel">
+          <h2>Match setup</h2>
+          <label>
+            Public server URL
+            <input id="baseUrl" type="text" placeholder="http://localhost:8080" />
+          </label>
+          <div class="form-grid">
+            <label>
+              Impostors
+              <input id="impostorCount" type="number" min="1" max="3" value="1" />
+            </label>
+            <label>
+              Tasks per player
+              <input id="tasksPerPlayer" type="number" min="1" max="3" value="2" />
+            </label>
+          </div>
+          <div class="button-row">
+            <button id="createMatch" class="primary">Create match</button>
+          </div>
+          <div id="statusMessage" class="status">Ready.</div>
+        </section>
+
+        <section id="entryDetails" class="panel entry hidden">
+          <div class="entry-grid">
+            <div class="entry-block">
+              <div class="label">Entry code</div>
+              <div id="entryCode" class="entry-code">----</div>
+            </div>
+            <div class="entry-block">
+              <div class="label">Join link</div>
+              <input id="joinUrl" type="text" readonly />
+            </div>
+            <div class="entry-block">
+              <div class="label">QR Code</div>
+              <div class="qr-wrap">
+                <img id="entryQr" alt="QR code" />
+              </div>
+            </div>
+          </div>
+          <p class="hint">If the QR does not load, ask players to enter the 4-digit code.</p>
+          <div class="button-row">
+            <button id="goAdmin">Go to admin</button>
+          </div>
+        </section>
+      </section>
+
+      <section id="screen-admin" class="screen">
+        <header class="hero">
+          <div class="title-block">
+            <span class="pill">Host Console</span>
+            <h1>Match Control</h1>
+            <p>Monitor the room, manage the match, and push emergencies fast.</p>
+          </div>
+          <div class="match-meta">
+            <div>
+              <div class="label">Match ID</div>
+              <div id="currentMatch" class="value">None</div>
+            </div>
+            <div>
+              <div class="label">Entry code</div>
+              <div id="currentEntryCode" class="value">----</div>
+            </div>
+            <div>
+              <div class="label">Last update</div>
+              <div id="lastUpdate" class="value">-</div>
+            </div>
+          </div>
+        </header>
+
+        <section class="panel">
+          <h2>Controls</h2>
+          <div class="controls-grid">
+            <label>
+              <span>Match ID</span>
+              <input id="matchId" type="text" placeholder="match_xxx" />
+            </label>
+            <div class="button-row">
+              <button id="startMatch">Start</button>
+              <button id="emergency" class="warn">Emergency</button>
+              <button id="clearEmergency">Clear emergency</button>
+              <button id="endMatch" class="danger">End match</button>
+              <button id="refresh">Refresh</button>
+            </div>
+          </div>
+          <div id="adminStatus" class="status">Waiting for match.</div>
+        </section>
+
+        <section class="panel">
+          <h2>Match status</h2>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="label">State</div>
+              <div id="matchState" class="value">-</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Players</div>
+              <div id="playerCount" class="value">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Progress</div>
+              <div id="progress" class="value">0 / 0</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">Active sabotage</div>
+              <div id="sabotage" class="value">None</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Players</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Color</th>
+                  <th>Nickname</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Tasks</th>
+                </tr>
+              </thead>
+              <tbody id="playersBody">
+                <tr>
+                  <td colspan="5">No players yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <h2>Event log</h2>
+          <div id="events" class="events">No events yet.</div>
+        </section>
+      </section>
+    </div>
+  </body>
+</html>

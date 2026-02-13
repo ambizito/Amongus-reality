@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Escudo</title>
+    <link rel="stylesheet" href="/tasks/shared.css" />
+    <style>
+      .shield-grid {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .shield {
+        width: 70px;
+        height: 70px;
+        border-radius: 16px;
+        border: 2px solid #334155;
+        background: #0b1220;
+        cursor: pointer;
+        position: relative;
+      }
+      .shield::after {
+        content: "";
+        position: absolute;
+        inset: 12px;
+        border-radius: 12px;
+        background: radial-gradient(circle at 30% 30%, #475569, #1e293b 70%);
+        opacity: 0.7;
+      }
+      .shield.active {
+        border-color: #22c55e;
+        background: #e2e8f0;
+      }
+      .shield.active::after {
+        background: radial-gradient(circle at 30% 30%, #f8fafc, #e2e8f0 70%);
+        opacity: 1;
+      }
+      .status {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .status.success {
+        color: #22c55e;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="task">
+      <div class="task-title">Escudo</div>
+      <div class="task-sub">Activate all panels.</div>
+      <div id="grid" class="shield-grid"></div>
+      <div id="status" class="status">0 / 6</div>
+    </div>
+
+    <script>
+      const grid = document.getElementById('grid');
+      const statusEl = document.getElementById('status');
+      const total = 6;
+      let activeCount = 0;
+      let done = false;
+
+      function notifyComplete() {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'TASK_COMPLETE', taskId: 'ESCUDO' }, window.location.origin);
+        }
+      }
+
+      function update() {
+        statusEl.textContent = `${activeCount} / ${total}`;
+      }
+
+      function finish() {
+        done = true;
+        statusEl.textContent = 'Shields online!';
+        statusEl.classList.add('success');
+        notifyComplete();
+      }
+
+      for (let i = 0; i < total; i += 1) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'shield';
+        button.addEventListener('click', () => {
+          if (done) return;
+          if (!button.classList.contains('active')) {
+            button.classList.add('active');
+            activeCount += 1;
+            update();
+            if (activeCount >= total) finish();
+          }
+        });
+        grid.appendChild(button);
+      }
+
+      update();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Amongus Reality - Local Console</title>
+    <style>
+      :root {
+        --bg: #f4efe6;
+        --ink: #1f1c17;
+        --accent: #2e6f56;
+        --accent-2: #d37b2f;
+        --card: #ffffff;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at 20% 20%, #fffaf2, #efe4d3 55%, #f5f1e8 100%);
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 48px 24px 64px;
+      }
+      header {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+      h1 {
+        font-size: 32px;
+        margin: 0;
+        letter-spacing: 0.5px;
+      }
+      p {
+        margin: 0;
+        line-height: 1.5;
+      }
+      .cards {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        display: grid;
+        gap: 10px;
+      }
+      a {
+        color: var(--accent);
+        font-weight: 700;
+        text-decoration: none;
+      }
+      .tag {
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--accent-2);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="tag">Local Console</div>
+        <h1>Amongus Reality</h1>
+        <p>Entry points for the host dashboard and the mobile test client.</p>
+      </header>
+      <div class="cards">
+        <div class="card">
+          <div class="tag">Host</div>
+          <h2>Host Dashboard</h2>
+          <p>Run the match, watch players, and track events in real time.</p>
+          <a href="/host">Open host dashboard</a>
+        </div>
+        <div class="card">
+          <div class="tag">Mobile</div>
+          <h2>Mobile Test Client</h2>
+          <p>Join a match, simulate QR tasks, and test offline outbox sync.</p>
+          <a href="/mobile">Open mobile test client</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

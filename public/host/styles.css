@@ -1,0 +1,269 @@
+﻿:root {
+  --bg: #f4f1e8;
+  --ink: #1b1a17;
+  --accent: #1e6f5c;
+  --accent-2: #d17d35;
+  --card: #ffffff;
+  --muted: #6f6a5b;
+  --danger: #a64235;
+  --warn: #b66a1c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Trebuchet MS", "Lucida Sans Unicode", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at top left, #fffaf0, #efe6d2 55%, #f7f2e9 100%);
+}
+
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.screen {
+  display: none;
+  gap: 20px;
+}
+
+.screen.active {
+  display: grid;
+}
+
+.hero {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.08);
+}
+
+.title-block h1 {
+  margin: 8px 0 6px;
+  font-size: 34px;
+}
+
+.title-block p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.pill {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fbe6d2;
+  color: var(--accent-2);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.match-meta {
+  display: grid;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.panel {
+  padding: 20px 24px;
+  border-radius: 18px;
+  background: var(--card);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.08);
+  display: grid;
+  gap: 16px;
+}
+
+.panel h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.controls-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.controls-grid label {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.form-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+
+.entry-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.entry-code {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 4px;
+}
+
+.qr-wrap {
+  background: #fff8ee;
+  padding: 12px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-wrap img {
+  width: 200px;
+  height: 200px;
+}
+
+input[type="text"] {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+}
+
+button {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #e6e0d2;
+  color: var(--ink);
+}
+
+button.primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+button.warn {
+  background: var(--warn);
+  color: #fff;
+}
+
+button.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status,
+.hint {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.stat-card {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fbf7f0;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th,
+td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+thead th {
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  display: inline-block;
+}
+
+.events {
+  max-height: 260px;
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.event-line {
+  padding: 10px 12px;
+  background: #f7f1e5;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    flex-direction: column;
+  }
+
+  .button-row {
+    flex-direction: column;
+  }
+}

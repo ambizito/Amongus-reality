@@ -1,14 +1,22 @@
+const fs = require('node:fs');
 const http = require('node:http');
+const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const { addPlayer, applyEvent, startMatch } = require('../core/gameEngine');
 const { loadState, saveState, createDefaultMatch } = require('./stateStore');
 const { EventType } = require('../shared/models');
 
 const state = loadState();
+const PUBLIC_DIR = path.resolve(__dirname, '..', '..', 'public');
 
 function json(res, code, body) {
   res.writeHead(code, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(body));
+}
+
+function toInt(value, fallback) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
 }
 
 function getBody(req) {
@@ -26,9 +34,60 @@ function getBody(req) {
   });
 }
 
+function contentTypeFor(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+  if (ext === '.html') return 'text/html; charset=utf-8';
+  if (ext === '.css') return 'text/css; charset=utf-8';
+  if (ext === '.js') return 'application/javascript; charset=utf-8';
+  if (ext === '.json') return 'application/json; charset=utf-8';
+  return 'text/plain; charset=utf-8';
+}
+
+function serveStatic(req, res, url) {
+  if (req.method !== 'GET') return false;
+
+  let pathname = decodeURIComponent(url.pathname);
+  if (pathname === '/') pathname = '/index.html';
+  if (pathname === '/host' || pathname === '/host/') pathname = '/host/index.html';
+  if (pathname === '/mobile' || pathname === '/mobile/') pathname = '/mobile/index.html';
+
+  const filePath = path.join(PUBLIC_DIR, pathname);
+  const normalized = path.normalize(filePath);
+  if (!normalized.startsWith(PUBLIC_DIR)) return false;
+  if (!fs.existsSync(normalized) || fs.statSync(normalized).isDirectory()) return false;
+
+  res.writeHead(200, {
+    'Content-Type': contentTypeFor(normalized),
+    'Cache-Control': 'no-store',
+  });
+  res.end(fs.readFileSync(normalized));
+  return true;
+}
+
+function generateEntryCode(matches) {
+  const used = new Set(Object.values(matches).map((m) => m.entryCode).filter(Boolean));
+  for (let i = 0; i < 10000; i += 1) {
+    const code = Math.floor(Math.random() * 10000)
+      .toString()
+      .padStart(4, '0');
+    if (!used.has(code)) return code;
+  }
+  throw new Error('No entry codes available');
+}
+
+function getMatchByEntryCode(entryCode) {
+  for (const [matchId, match] of Object.entries(state.matches)) {
+    if (match.entryCode === entryCode) {
+      return { matchId, match };
+    }
+  }
+  return null;
+}
+
 function routeMatch(pathname) {
   const patterns = [
     { key: 'createMatch', re: /^\/matches$/ },
+    { key: 'joinByCode', re: /^\/matches\/entry\/(\d{4})\/players$/ },
     { key: 'join', re: /^\/matches\/([^/]+)\/players$/ },
     { key: 'start', re: /^\/matches\/([^/]+)\/start$/ },
     { key: 'event', re: /^\/matches\/([^/]+)\/events$/ },
@@ -58,6 +117,11 @@ function getMatchOr404(matchId, res) {
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
+
+  if (serveStatic(req, res, url)) {
+    return;
+  }
+
   const route = routeMatch(url.pathname);
 
   if (!route) {
@@ -66,10 +130,38 @@ const server = http.createServer(async (req, res) => {
 
   try {
     if (route.key === 'createMatch' && req.method === 'POST') {
-      const match = createDefaultMatch();
+      const body = await getBody(req);
+      const impostorCount = toInt(body.impostorCount, 1);
+      const tasksPerPlayer = toInt(body.tasksPerPlayer, null);
+      const match = createDefaultMatch({ impostorCount, tasksPerPlayer });
+      match.entryCode = generateEntryCode(state.matches);
       state.matches[match.matchId] = match;
       saveState(state);
-      return json(res, 201, { matchId: match.matchId, entryCode: match.matchId });
+      return json(res, 201, {
+        matchId: match.matchId,
+        entryCode: match.entryCode,
+        impostorCount: match.impostorCount,
+        tasksPerPlayer: match.tasksPerPlayer,
+      });
+    }
+
+    if (route.key === 'joinByCode' && req.method === 'POST') {
+      const body = await getBody(req);
+      const [entryCode] = route.params;
+      const found = getMatchByEntryCode(entryCode);
+      if (!found) return json(res, 404, { error: 'Codigo nao encontrado' });
+      const { matchId, match } = found;
+      const player = addPlayer(match, body.nickname || 'SemNome', body.playerId || randomUUID());
+      applyEvent(match, {
+        eventId: randomUUID(),
+        matchId,
+        playerId: player.playerId,
+        type: EventType.PLAYER_JOINED,
+        payload: {},
+        timestampLocal: Date.now(),
+      });
+      saveState(state);
+      return json(res, 201, { matchId, entryCode, player });
     }
 
     const [matchId] = route.params;

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Fios</title>
+    <link rel="stylesheet" href="/tasks/shared.css" />
+    <style>
+      .wire-board {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 18px;
+        align-items: center;
+      }
+      .wire-col {
+        display: grid;
+        gap: 12px;
+      }
+      .wire-node {
+        width: 48px;
+        height: 24px;
+        border-radius: 12px;
+        border: 2px solid rgba(15, 23, 42, 0.8);
+        cursor: pointer;
+      }
+      .wire-node.connected {
+        opacity: 0.4;
+        cursor: default;
+      }
+      .wire-node.selected {
+        outline: 3px solid #38bdf8;
+      }
+      .wire-center {
+        font-size: 10px;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+      .color-red { background: #ef4444; }
+      .color-blue { background: #3b82f6; }
+      .color-yellow { background: #fbbf24; }
+      .color-pink { background: #f472b6; }
+      .status {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .status.success {
+        color: #22c55e;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="task">
+      <div class="task-title">Fios</div>
+      <div class="task-sub">Connect matching colors.</div>
+      <div class="wire-board">
+        <div id="left" class="wire-col"></div>
+        <div class="wire-center">Match</div>
+        <div id="right" class="wire-col"></div>
+      </div>
+      <div id="status" class="status">0 / 4</div>
+    </div>
+
+    <script>
+      const leftCol = document.getElementById('left');
+      const rightCol = document.getElementById('right');
+      const statusEl = document.getElementById('status');
+      const colors = ['red', 'blue', 'yellow', 'pink'];
+      let selected = null;
+      let connected = 0;
+      let done = false;
+
+      function notifyComplete() {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'TASK_COMPLETE', taskId: 'FIOS' }, window.location.origin);
+        }
+      }
+
+      function shuffle(list) {
+        const copy = [...list];
+        for (let i = copy.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+      }
+
+      function updateStatus(message) {
+        statusEl.textContent = message || `${connected} / ${colors.length}`;
+      }
+
+      function finish() {
+        done = true;
+        statusEl.textContent = 'All wires connected!';
+        statusEl.classList.add('success');
+        notifyComplete();
+      }
+
+      function createNode(color, side) {
+        const node = document.createElement('button');
+        node.type = 'button';
+        node.className = `wire-node color-${color}`;
+        node.dataset.color = color;
+        node.dataset.side = side;
+        return node;
+      }
+
+      function clearSelection() {
+        if (selected) selected.classList.remove('selected');
+        selected = null;
+      }
+
+      function handleLeft(node) {
+        if (done || node.classList.contains('connected')) return;
+        clearSelection();
+        selected = node;
+        node.classList.add('selected');
+        updateStatus();
+      }
+
+      function handleRight(node) {
+        if (done || node.classList.contains('connected')) return;
+        if (!selected) return;
+        const match = node.dataset.color === selected.dataset.color;
+        if (match) {
+          node.classList.add('connected');
+          selected.classList.add('connected');
+          connected += 1;
+          clearSelection();
+          updateStatus();
+          if (connected >= colors.length) finish();
+        } else {
+          updateStatus('Wrong match');
+          clearSelection();
+        }
+      }
+
+      colors.forEach((color) => {
+        const node = createNode(color, 'left');
+        node.addEventListener('click', () => handleLeft(node));
+        leftCol.appendChild(node);
+      });
+
+      shuffle(colors).forEach((color) => {
+        const node = createNode(color, 'right');
+        node.addEventListener('click', () => handleRight(node));
+        rightCol.appendChild(node);
+      });
+
+      updateStatus();
+    </script>
+  </body>
+</html>

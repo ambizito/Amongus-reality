@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Task Navegacao</title>
+    <link rel="stylesheet" href="/tasks/shared.css" />
+    <style>
+      .nav-field {
+        margin-top: 16px;
+        width: 100%;
+        height: 200px;
+        border-radius: 16px;
+        border: 1px solid #334155;
+        background: radial-gradient(circle at 20% 20%, #1f2937, #0f172a 70%);
+        position: relative;
+        overflow: hidden;
+      }
+      .path {
+        position: absolute;
+        left: 20px;
+        right: 20px;
+        top: 50%;
+        height: 2px;
+        background: rgba(148, 163, 184, 0.4);
+      }
+      .target {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 2px dashed #38bdf8;
+        top: 24px;
+        right: 24px;
+        box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+      }
+      .ship {
+        position: absolute;
+        width: 34px;
+        height: 34px;
+        border-radius: 10px 18px 18px 10px;
+        background: #f8fafc;
+        border: 2px solid #0f172a;
+        box-shadow: 0 0 10px rgba(248, 250, 252, 0.6);
+        cursor: grab;
+      }
+      .ship:active {
+        cursor: grabbing;
+      }
+      .status {
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .status.success {
+        color: #22c55e;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="task">
+      <div class="task-title">Navegacao</div>
+      <div class="task-sub">Drag the ship to the target and hold 1s.</div>
+      <div id="field" class="nav-field">
+        <div class="path"></div>
+        <div id="target" class="target"></div>
+        <div id="ship" class="ship"></div>
+      </div>
+      <div id="status" class="status">Hold inside the target.</div>
+    </div>
+
+    <script>
+      const field = document.getElementById('field');
+      const ship = document.getElementById('ship');
+      const target = document.getElementById('target');
+      const statusEl = document.getElementById('status');
+
+      let dragging = false;
+      let shipPos = { x: 20, y: 140 };
+      let insideSince = null;
+      let done = false;
+
+      function notifyComplete() {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'TASK_COMPLETE', taskId: 'NAVEGACAO' }, window.location.origin);
+        }
+      }
+
+      function setShip(x, y) {
+        const bounds = field.getBoundingClientRect();
+        const maxX = bounds.width - ship.offsetWidth;
+        const maxY = bounds.height - ship.offsetHeight;
+        shipPos.x = Math.max(0, Math.min(maxX, x));
+        shipPos.y = Math.max(0, Math.min(maxY, y));
+        ship.style.left = `${shipPos.x}px`;
+        ship.style.top = `${shipPos.y}px`;
+      }
+
+      function checkTarget() {
+        if (done) return;
+        const shipRect = ship.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const shipCenterX = shipRect.left + shipRect.width / 2;
+        const shipCenterY = shipRect.top + shipRect.height / 2;
+        const targetCenterX = targetRect.left + targetRect.width / 2;
+        const targetCenterY = targetRect.top + targetRect.height / 2;
+        const dist = Math.hypot(shipCenterX - targetCenterX, shipCenterY - targetCenterY);
+        const radius = targetRect.width / 2;
+
+        if (dist <= radius - 4) {
+          if (!insideSince) insideSince = Date.now();
+          if (Date.now() - insideSince >= 1000) {
+            done = true;
+            statusEl.textContent = 'Course locked!';
+            statusEl.classList.add('success');
+            notifyComplete();
+            return;
+          }
+        } else {
+          insideSince = null;
+        }
+        requestAnimationFrame(checkTarget);
+      }
+
+      ship.addEventListener('pointerdown', (event) => {
+        if (done) return;
+        event.preventDefault();
+        dragging = true;
+      });
+
+      window.addEventListener('pointermove', (event) => {
+        if (!dragging || done) return;
+        const rect = field.getBoundingClientRect();
+        const x = event.clientX - rect.left - ship.offsetWidth / 2;
+        const y = event.clientY - rect.top - ship.offsetHeight / 2;
+        setShip(x, y);
+      });
+
+      window.addEventListener('pointerup', () => {
+        dragging = false;
+      });
+
+      window.addEventListener('pointercancel', () => {
+        dragging = false;
+      });
+
+      setShip(shipPos.x, shipPos.y);
+      requestAnimationFrame(checkTarget);
+    </script>
+  </body>
+</html>

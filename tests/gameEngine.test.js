@@ -1,13 +1,26 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createMatch, addPlayer, startMatch, applyEvent } = require('../src/core/gameEngine');
-const { EventType, MatchState, PlayerStatus } = require('../src/shared/models');
+const { EventType, MatchState, PlayerStatus, Role } = require('../src/shared/models');
 
-test('idempotência: evento duplicado não duplica task', () => {
-  const match = createMatch({ taskCatalog: [{ taskId: 'O2', qrLocationId: 'Q1' }] });
+test('idempotency: duplicated event does not double count task', () => {
+  const match = createMatch({
+    taskCatalog: [
+      { taskId: 'O2', qrLocationId: 'Q1' },
+      { taskId: 'FIOS', qrLocationId: 'Q2' },
+    ],
+    tasksPerPlayer: 2,
+  });
   const p = addPlayer(match, 'Ana', 'p1');
-  addPlayer(match, 'Bob', 'p2');
+  const other = addPlayer(match, 'Bob', 'p2');
   startMatch(match);
+
+  p.role = Role.TRIPULANTE;
+  other.role = Role.TRIPULANTE;
+  p.assignedTasks = match.tasks;
+  other.assignedTasks = [];
+  p.completedTasks = [];
+  other.completedTasks = [];
 
   const event = {
     eventId: 'evt-1',
@@ -24,31 +37,39 @@ test('idempotência: evento duplicado não duplica task', () => {
   assert.equal(p.completedTasks.length, 1);
 });
 
-test('jogador morto não conclui task', () => {
-  const match = createMatch({ taskCatalog: [{ taskId: 'FIOS', qrLocationId: 'Q2' }] });
-  const p = addPlayer(match, 'Vítima', 'p_dead');
-  addPlayer(match, 'Imp', 'p_imp');
+test('dead player cannot complete task', () => {
+  const match = createMatch({
+    taskCatalog: [{ taskId: 'FIOS', qrLocationId: 'Q2' }],
+    tasksPerPlayer: 1,
+  });
+  const victim = addPlayer(match, 'Victim', 'p_dead');
+  const crew = addPlayer(match, 'Crew', 'p2');
   startMatch(match);
+
+  victim.role = Role.TRIPULANTE;
+  crew.role = Role.TRIPULANTE;
+  victim.assignedTasks = [{ taskId: 'FIOS', qrLocationId: 'Q2' }];
+  crew.assignedTasks = [];
 
   applyEvent(match, {
     eventId: 'evt-kill',
-    playerId: p.playerId,
+    playerId: victim.playerId,
     type: EventType.PLAYER_REPORTED_DEAD,
     payload: {},
   });
 
   applyEvent(match, {
     eventId: 'evt-task-after-death',
-    playerId: p.playerId,
+    playerId: victim.playerId,
     type: EventType.TASK_COMPLETED,
     payload: { taskId: 'FIOS' },
   });
 
-  assert.equal(p.status, PlayerStatus.MORTO);
-  assert.equal(p.completedTasks.length, 0);
+  assert.equal(victim.status, PlayerStatus.MORTO);
+  assert.equal(victim.completedTasks.length, 0);
 });
 
-test('emergência alterna estado', () => {
+test('emergency call toggles state', () => {
   const match = createMatch();
   addPlayer(match, 'A', 'p1');
   addPlayer(match, 'B', 'p2');

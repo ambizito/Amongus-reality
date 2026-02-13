@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Amongus Reality - Mobile Prototype</title>
+    <link rel="stylesheet" href="/mobile/styles.css" />
+    <script defer src="/mobile/app.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <section id="screen-login" class="screen active">
+        <div class="login-card">
+          <div class="brand">
+            <div class="brand-title">AMONG<br />REALITY</div>
+            <div class="brand-sub">MOBILE CLIENT</div>
+          </div>
+
+          <div class="login-form">
+            <label class="field">
+              Game code
+              <input
+                id="entryCode"
+                type="text"
+                inputmode="numeric"
+                maxlength="4"
+                placeholder="1234"
+              />
+            </label>
+
+            <label class="field">
+              Nickname
+              <input id="nickname" type="text" placeholder="Your name" />
+            </label>
+
+            <details class="server-options">
+              <summary>Server settings</summary>
+              <label class="field">
+                Server URL
+                <input id="baseUrl" type="text" placeholder="http://localhost:8080" />
+              </label>
+            </details>
+
+            <button id="joinMatch" class="btn primary" type="button">ENTER</button>
+
+            <div class="divider">
+              <span>OR</span>
+            </div>
+
+            <button id="openJoinScanner" class="btn secondary" type="button">
+              OPEN CAMERA
+            </button>
+
+            <div id="joinStatus" class="hint">Waiting for code.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-lobby" class="screen" hidden>
+        <div class="lobby-header">
+          <div>
+            <div class="label">ROOM</div>
+            <div id="lobbyCode" class="value">----</div>
+          </div>
+          <div id="lobbyStatus" class="status-pill">ONLINE</div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-title">Crewmates</div>
+          <div id="lobbyPlayers" class="lobby-list">No players yet.</div>
+          <div class="hint">Waiting for the host to start.</div>
+        </div>
+      </section>
+
+      <section id="screen-reveal" class="screen" hidden>
+        <div class="reveal-card">
+          <div id="roleName" class="role-name">ROLE</div>
+          <div id="roleAvatar" class="role-avatar">
+            <div class="visor"></div>
+          </div>
+          <div id="roleHint" class="role-hint">Stand by.</div>
+          <div id="roleTimer" class="hint">Tasks unlock soon.</div>
+        </div>
+      </section>
+
+      <section id="screen-game" class="screen" hidden>
+        <div class="game-header">
+          <div class="player-card">
+            <div id="playerAvatar" class="player-avatar">
+              <div class="visor"></div>
+            </div>
+            <div class="player-info">
+              <div id="playerName" class="player-name">You</div>
+              <div id="playerRole" class="role-pill">-</div>
+            </div>
+          </div>
+
+          <div class="progress">
+            <div class="progress-bar">
+              <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <div class="progress-label">
+              <span id="progressText">0 / 0</span> tasks
+            </div>
+          </div>
+        </div>
+
+        <div id="emergencyBanner" class="banner hidden" hidden>EMERGENCY</div>
+
+        <div class="map-area">
+          <div class="map-frame">
+            <img id="mapImage" class="map-image" src="/mobile/map-placeholder.svg" alt="Map" />
+            <div class="map-grid"></div>
+            <div id="mapTasks" class="map-tasks"></div>
+          </div>
+          <div id="mapHint" class="map-hint">Go to a marker and scan the QR.</div>
+        </div>
+
+        <div class="game-footer">
+          <button id="reportDead" class="btn report" type="button">REPORT</button>
+          <button id="openTaskScanner" class="btn scan" type="button">SCAN</button>
+          <button id="sabotageButton" class="btn side" type="button" hidden>SABOTAGE</button>
+        </div>
+
+        <div id="sabotagePanel" class="sabotage-panel hidden" hidden>
+          <div class="panel-title">Sabotage</div>
+          <label class="field">
+            Target
+            <select id="sabotageSelect"></select>
+          </label>
+          <button id="triggerSabotage" class="btn danger" type="button">TRIGGER</button>
+          <div id="sabotageHint" class="hint"></div>
+        </div>
+      </section>
+
+      <section id="overlay-scanner" class="overlay hidden" hidden>
+        <div class="scanner">
+          <div class="scanner-header">
+            <span id="scannerTitle">Scanner</span>
+            <button id="closeScanner" class="btn close" type="button">X</button>
+          </div>
+          <div class="scanner-body">
+            <video id="scannerVideo" autoplay muted playsinline></video>
+            <div class="scan-frame">
+              <div class="scan-line"></div>
+            </div>
+            <div id="scannerMessage" class="hint">Point the camera at the QR.</div>
+            <div class="scanner-fallback">
+              <label class="field">
+                Manual input
+                <input id="scannerInput" type="text" placeholder="code or QR value" />
+              </label>
+              <button id="scannerSubmit" class="btn secondary" type="button">USE</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="overlay-task" class="overlay hidden" hidden>
+        <div class="task-card">
+          <div class="task-header">
+            <span id="taskTitle">Task</span>
+            <button id="closeTask" class="btn close" type="button">X</button>
+          </div>
+          <div class="task-body">
+            <div id="taskSubtitle" class="hint">Complete the task.</div>
+            <iframe id="taskFrame" class="task-frame" title="Task"></iframe>
+          </div>
+          <button id="completeTask" class="btn primary" type="button">COMPLETE</button>
+        </div>
+      </section>
+
+      <section id="overlay-emergency" class="overlay hidden" hidden>
+        <div class="emergency-card">
+          <div class="emergency-title">EMERGENCY CALL</div>
+          <p>Body reported. Go to the meeting room now.</p>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>
