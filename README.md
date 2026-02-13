@@ -29,6 +29,12 @@ node src/server/httpServer.js
 
 Servidor sobe em `http://localhost:8080`.
 
+## Interfaces web (host e mobile de teste)
+
+- `http://localhost:8080/` (atalhos)
+- `http://localhost:8080/host`
+- `http://localhost:8080/mobile`
+
 ## Rodar testes
 
 ```bash
@@ -38,6 +44,7 @@ node --test
 ## Endpoints principais
 
 - `POST /matches`
+- `POST /matches/entry/:code/players`
 - `POST /matches/:matchId/players`
 - `POST /matches/:matchId/start`
 - `POST /matches/:matchId/events`
@@ -50,3 +57,10 @@ node --test
 - Projeto propositalmente sem autenticação/criptografia (escopo solicitado).
 - Persistência em JSON local (`./data/state.json`).
 - Código pensado para ser base de evolução para app React Native/Flutter e dashboard web real.
+- Tasks definidas em `src/tasks` (um arquivo por minigame, QR fixo).
+- UI dos minigames em `public/tasks` (um arquivo por task).
+- Mobile limpa a sessao salva no reload se a partida ja terminou.
+
+## Match settings
+
+- `POST /matches` accepts `impostorCount` and `tasksPerPlayer`.
